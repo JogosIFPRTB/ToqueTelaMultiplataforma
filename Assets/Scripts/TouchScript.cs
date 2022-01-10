@@ -23,7 +23,7 @@ public class TouchScript : MonoBehaviour
                 // Variável para guardar as informações do toque na tela 
                 Touch toque = Input.GetTouch(0);
                 // Chama a função de movimentação
-                MoverObjeto(Input.mousePosition);
+                MoverObjeto(toque.position);
             }
         #endif        
     }
