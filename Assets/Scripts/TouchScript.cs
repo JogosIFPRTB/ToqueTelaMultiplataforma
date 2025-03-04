@@ -1,39 +1,58 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Classe responsável por mover um objeto para a posição do toque (Android) ou clique (PC).
+/// Permite que o objeto siga a posição do dedo na tela ou do cursor do mouse.
+/// </summary>
 public class TouchScript : MonoBehaviour
 {
-    void Update()
-    {
-        // código só roda no editor
-        #if UNITY_EDITOR
-            // Verifica se ouve clique com o botão direito do mouse
-            if (Input.GetMouseButton(0)) {
-                // Chama a função de movimentação
-                MoverObjeto(Input.mousePosition);
-            }
-                
-        #endif
+    /// <summary>
+    /// Referência para a câmera principal da cena.
+    /// </summary>
+    private Camera cam;
 
-        // código só roda em android
-        #if UNITY_ANDROID
-            // Verifica se teve toque na tela
-            if (Input.touchCount > 0) {
-                // Variável para guardar as informações do toque na tela 
-                Touch toque = Input.GetTouch(0);
-                // Chama a função de movimentação
-                MoverObjeto(toque.position);
-            }
-        #endif        
+    /// <summary>
+    /// Método chamado uma vez quando o script inicia.
+    /// Aqui, armazenamos a referência da câmera principal para otimizar chamadas no Update.
+    /// </summary>
+    void Start()
+    {
+        cam = Camera.main;
     }
 
-    void MoverObjeto(Vector3 posicaoToque) {
-        // tranformando o toque na tela a posição referente na cena do unity
-        posicaoToque = Camera.main.ScreenToWorldPoint(posicaoToque);
-        // Zerando o eixo Z 
-        posicaoToque.z = 0f;
-        // fazendo o objeto ficar na mesma posição do toque
-        transform.position = posicaoToque;
+    /// <summary>
+    /// Método chamado a cada frame para verificar a entrada do usuário (toque ou clique).
+    /// Move o objeto conforme o toque arrastado ou o movimento do mouse.
+    /// </summary>
+    void Update()
+    {
+        // Verifica se há toque na tela (Android ou dispositivos touch)
+        if (Input.touchCount > 0)
+        {
+            Touch toque = Input.GetTouch(0);
+
+            // Movimenta o objeto apenas se o usuário arrastar o dedo na tela
+            if (toque.phase == TouchPhase.Moved)
+                MoverObjeto(toque.position);
+        }
+        // Se não há toque, verifica se o botão do mouse está pressionado (para testes no Editor)
+        else if (Input.GetMouseButton(0))
+        {
+            MoverObjeto(Input.mousePosition);
+        }
+    }
+
+    /// <summary>
+    /// Move o objeto para a posição do toque ou clique.
+    /// </summary>
+    /// <param name="posicaoToque">Posição da tela onde ocorreu o toque ou clique.</param>
+    void MoverObjeto(Vector3 posicaoToque)
+    {
+        // Converte a posição da tela (2D) para coordenadas do mundo (3D)
+        Vector3 posicaoMundo = cam.ScreenToWorldPoint(new Vector3(posicaoToque.x, posicaoToque.y, cam.nearClipPlane));
+        posicaoMundo.z = 0f; // Mantém o objeto no plano 2D
+
+        // Define a posição do objeto para a posição do toque/clique
+        transform.position = posicaoMundo;
     }
 }

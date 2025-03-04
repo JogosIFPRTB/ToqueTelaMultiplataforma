@@ -1,41 +1,66 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Classe responsável por instanciar um objeto na posição do toque (Android) ou clique (PC).
+/// Funciona tanto no Unity Editor (usando o mouse) quanto em dispositivos móveis (toque na tela).
+/// </summary>
 public class MultiploToque : MonoBehaviour
 {
-    // variável publica do objeto que será instanciado
+    /// <summary>
+    /// Objeto que será instanciado quando houver um toque ou clique.
+    /// </summary>
     public GameObject objeto;
-    // Update is called once per frame
-    void Update()
-    {
-        // código só roda no editor
-        #if UNITY_EDITOR
-            // Verifica se ouve clique com o botão direito do mouse
-            if (Input.GetMouseButton(0))
-                // chamando o metodo GerarObjeto para cada posição de cada toque
-                GeraObjeto(Input.mousePosition);
-        #endif
 
-        // código só roda em android
-        #if UNITY_ANDROID
-            // loop para pegar todos os toque na tela
-            for (int i = 0; i < Input.touchCount; i++)
-            {
-                // chamando o metodo GerarObjeto para cada posição de cada toque
-                GeraObjeto(Input.touches[i].position);
-            }        
-        #endif
+    /// <summary>
+    /// Referência para a câmera principal da cena.
+    /// </summary>
+    private Camera cam;
+
+    /// <summary>
+    /// Método chamado uma vez quando o script inicia. 
+    /// Aqui, armazenamos a referência da câmera principal para otimizar chamadas no Update.
+    /// </summary>
+    void Start()
+    {
+        cam = Camera.main;
     }
 
-    void GeraObjeto(Vector3 posicaoToque) {
-        // tranformando o toque na tela a posição referente na cena do unity
-        posicaoToque = Camera.main.ScreenToWorldPoint(posicaoToque);
-        // Zerando o eixo Z 
-        posicaoToque.z = 0f;
-        // instacia o clone do objeto na posição que foi feito o toque
-        GameObject clone = Instantiate(objeto, posicaoToque, Quaternion.identity);
-        // programa destruição do objeto após 1 segundo
-        Destroy(clone, 1);
+    /// <summary>
+    /// Método chamado a cada frame para verificar a entrada do usuário (toque ou clique).
+    /// </summary>
+    void Update()
+    {
+        // Verifica se há toques na tela (Android ou dispositivos touch)
+        if (Input.touchCount > 0)
+        {
+            for (int i = 0; i < Input.touchCount; i++)
+            {
+                // Captura apenas o início do toque para evitar múltiplas instâncias
+                if (Input.touches[i].phase == TouchPhase.Began)
+                    GeraObjeto(Input.touches[i].position);
+            }
+        }
+        // Se não há toque, verifica se houve clique do mouse (para testes no Editor)
+        else if (Input.GetMouseButtonDown(0))
+        {
+            GeraObjeto(Input.mousePosition);
+        }
+    }
+
+    /// <summary>
+    /// Instancia um objeto na posição do toque ou clique.
+    /// </summary>
+    /// <param name="posicaoToque">Posição da tela onde ocorreu o toque ou clique.</param>
+    void GeraObjeto(Vector3 posicaoToque)
+    {
+        // Converte a posição da tela (2D) para coordenadas do mundo (3D)
+        Vector3 posicaoMundo = cam.ScreenToWorldPoint(new Vector3(posicaoToque.x, posicaoToque.y, cam.nearClipPlane));
+        posicaoMundo.z = 0f; // Mantém o objeto no plano 2D
+
+        // Instancia o objeto na posição calculada
+        GameObject clone = Instantiate(objeto, posicaoMundo, Quaternion.identity);
+
+        // Destroi o objeto após 1 segundo para evitar sobrecarga de instâncias na cena
+        Destroy(clone, 1f);
     }
 }
