@@ -1,8 +1,6 @@
 # 🎮 Unity Touch Scripts
 Este repositório contém três scripts em C# para Unity, desenvolvidos para ensinar e demonstrar o uso de entrada por toque em dispositivos móveis e cliques no editor.  
 
-Os scripts foram criados para uso em aulas e seguem **boas práticas de programação e organização**.
-
 ---
 
 ## 📜 **Descrição dos Scripts**
@@ -80,13 +78,6 @@ Aguarde a importação dos arquivos.
 ### **3️⃣ Executar o Jogo**
 - No Unity, vá até File → Build & Run ou pressione Play no Editor.
 - Teste o cliques ou toques na tela.
-
----
-
-### **🎯 Como Jogar**
-- 🎮 **Movimentação:** Use as setas do teclado ou WASD.
-- 🎯 **Atirar:** Pressione Ctrl ou clique com o botão esquerdo do mouse.
-- 💀 **Game Over:** Se a vida chegar a 0, o jogo pausa e exibe uma mensagem. Pressione qualquer tecla para reiniciar.
 
 ---
 
